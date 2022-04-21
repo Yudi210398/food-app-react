@@ -7,10 +7,19 @@ const stateAwal = {
 };
 
 const reducer = (state, action) => {
-  if (action.type === "add") {
-    const updateTotalHarga =
-      state.totalHarga + action.item.harga * action.item.jumlah;
+  const reducerCodeFungsiDRY = (state, aksi) => {
+    const updateItems = state.items.filter((item) => item.id !== aksi.item);
+    const updatedTotalHarga = updateItems
+      .map((data) => data.jumlah * data.harga)
+      .reduce((a, b) => a + b, 0);
+    console.log(updateItems, updatedTotalHarga);
+    return {
+      items: updateItems,
+      totalHarga: updatedTotalHarga,
+    };
+  };
 
+  if (action.type === "add") {
     console.log(state.totalHarga, action.item.harga, action.item.jumlah);
 
     const existingCartItemIndex = state.items.findIndex(
@@ -47,6 +56,9 @@ const reducer = (state, action) => {
     } else {
       updatedItems = state.items.concat(action.item);
     }
+    const updateTotalHarga =
+      state.totalHarga + action.item.harga * action.item.jumlah;
+
     return {
       items: updatedItems,
       totalHarga: updateTotalHarga,
@@ -60,10 +72,21 @@ const reducer = (state, action) => {
       (item) => item.id === action.item
     );
 
-    const existingItem = state.items[adaKeranjangItemIndex];
+    const dataAda = state.items[adaKeranjangItemIndex];
+    console.log(dataAda.jumlah);
+    if (dataAda.jumlah === 1) {
+      updateItems = state.items.filter((item) => item.id !== action.item);
+      updatedTotalHarga = updateItems
+        .map((data) => data.jumlah * data.harga)
+        .reduce((a, b) => a + b, 0);
+    } else {
+      let updateItem = { ...dataAda, jumlah: dataAda.jumlah - 1 };
+      updateItems = [...state.items];
+      updateItems[adaKeranjangItemIndex] = updateItem;
 
-    console.log(existingItem);
-
+      updatedTotalHarga = state.totalHarga - dataAda.harga;
+      console.log(state.totalHarga, dataAda.harga);
+    }
     return {
       items: updateItems,
       totalHarga: updatedTotalHarga,
@@ -98,6 +121,7 @@ const ContekProvider = (props) => {
     dispatch({ type: `hapus`, item });
   };
 
+  console.log(state);
   const cartConteks = {
     items: state.items,
     totalHarga: state.totalHarga,
@@ -105,6 +129,8 @@ const ContekProvider = (props) => {
     removeItem: itemRomove,
     hapusItem: itemHapus,
   };
+
+  console.log(cartConteks.items);
 
   return (
     <CartConteks.Provider value={cartConteks}>

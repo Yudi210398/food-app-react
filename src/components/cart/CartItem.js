@@ -1,5 +1,4 @@
 import classes from "./CartItem.module.css";
-
 const CartItem = (props) => {
   return (
     <li className={classes["cart-item"]}>
@@ -13,7 +12,9 @@ const CartItem = (props) => {
         </div>
       </div>
       <div className={classes.actions}>
-        <button onClick={props.onKurang}>-</button>
+        <button key={Math.random()} onClick={props.onKurang}>
+          -
+        </button>
         <button onClick={props.onTambah}>+</button>
         <button onClick={props.onHapusan}>x</button>
       </div>
